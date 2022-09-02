@@ -377,7 +377,7 @@ local alarms = {
     { false, 0 , false, 1, 0, false, 0 }, --15
     { false, 0 , true, 1, 0, false, 0 }, --FS_EKF
     { false, 0 , true, 1, 0, false, 0 }, --FS_BAT
-    { false, 0 , true, 2, 0, false, 0 }, --FLIGTH_TIME
+    { false, 0 , true, 2, 0, false, 0 }, --FLIGHT_TIME
     { false, 0 , false, 3, 4, false, 0 }, --BATT L1
     { false, 0 , false, 4, 4, false, 0 }, --BATT L2
     { false, 0 , true, 1, 0, false, 0 }, --FS
@@ -1678,13 +1678,14 @@ local function drawMessageScreen()
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
   -- print info on the right
   -- CELL
-  if battery[1] * 0.01 < 10 then
-    lcd.drawNumber(410, 0, battery[1] + 0.5, PREC2+0+MIDSIZE+CUSTOM_COLOR)
-  else
-    lcd.drawNumber(410, 0, (battery[1] + 0.5)*0.1, PREC1+0+MIDSIZE+CUSTOM_COLOR)
-  end
-  lcd.drawText(410+50, 1, status.battsource, SMLSIZE+CUSTOM_COLOR)
-  lcd.drawText(410+50, 11, "V", SMLSIZE+CUSTOM_COLOR)
+  -- if battery[1] * 0.01 < 10 then
+  --   lcd.drawNumber(410, 0, battery[1] + 0.5, PREC2+0+MIDSIZE+CUSTOM_COLOR)
+  -- else
+  --   lcd.drawNumber(410, 0, (battery[1] + 0.5)*0.1, PREC1+0+MIDSIZE+CUSTOM_COLOR)
+  -- end
+  -- lcd.drawText(410+50, 1, status.battsource, SMLSIZE+CUSTOM_COLOR)
+  lcd.drawNumber(410, 0, battery[4+1] + 0.5, PREC1+0+MIDSIZE+CUSTOM_COLOR)
+  lcd.drawText(410+50, 0, "V", MIDSIZE+CUSTOM_COLOR)
   -- ALT
   local altPrefix = status.terrainEnabled == 1 and "HAT(" or "Alt("
   local alt = status.terrainEnabled == 1 and telemetry.heightAboveTerrain or telemetry.homeAlt
@@ -2119,23 +2120,27 @@ local function backgroundTasks(myWidget,telemetryLoops)
     -- prepare celm based on status.battsource
     local count1,count2 = calcCellCount()
     local cellVoltage = 0
+    local voltage = 0
 
     if conf.battConf == 3 or conf.battConf == 5 then
       -- voltage alarms are based on battery 1
       cellVoltage = 100*(status.battsource == "vs" and status.cell1min or status.cell1sumFC/count1)
+      voltage = 100*(status.battsource == "vs" and status.cell1min*count1 or status.cell1sumFC)
     elseif conf.battConf == 4 or conf.battConf == 6 then
       -- voltage alarms are based on battery 2
       cellVoltage = 100*(status.battsource == "vs" and status.cell2min or status.cell2sumFC/count2)
+      voltage = 100*(status.battsource == "vs" and status.cell2min*count2 or status.cell2sumFC)
     else
       -- alarms are based on battery 1 and battery 2
       cellVoltage = 100*(status.battsource == "vs" and getNonZeroMin(status.cell1min,status.cell2min) or getNonZeroMin(status.cell1sumFC/count1,status.cell2sumFC/count2))
+      voltage = 100*(status.battsource == "vs" and getNonZeroMin(status.cell1min*count1,status.cell2min*count2) or getNonZeroMin(status.cell1sumFC,status.cell2sumFC))
     end
 
     checkEvents(cellVoltage)
     checkLandingStatus()
     -- no need for alarms if reported voltage is 0
-    if cellVoltage > 0 then
-      checkCellVoltage(cellVoltage)
+    if voltage > 0 then
+      checkCellVoltage(voltage)
     end
 
     local batcurrent = 0
