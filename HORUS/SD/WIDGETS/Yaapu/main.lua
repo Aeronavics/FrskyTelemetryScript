@@ -1564,7 +1564,7 @@ local function reset()
       resetPhase = 7
     elseif resetPhase == 7 then
       utils.pushMessage(7,"Yaapu Telemetry Widget 1.9.5")
-      utils.playSound("yaapu")
+      utils.playSound("aeronavics")
       -- on model change reload config!
       if modelChangePending == true then
         -- force load model config

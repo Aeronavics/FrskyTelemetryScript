@@ -2221,7 +2221,7 @@ local function init()
   utils.loadBatteryConfigFile()
   -- ok done
   utils.pushMessage(7,"Yaapu Telemetry Widget 1.9.5".." ("..'c47a1df'..")")
-  utils.playSound("yaapu")
+  utils.playSound("aeronavics")
   -- fix for generalsettings lazy loading...
   unitScale = getGeneralSettings().imperial == 0 and 1 or 3.28084
   unitLabel = getGeneralSettings().imperial == 0 and "m" or "ft"
