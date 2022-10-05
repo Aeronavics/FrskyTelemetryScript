@@ -955,7 +955,7 @@ local function processTelemetry(DATA_ID,VALUE,now)
       -- assume a 2Vx12 as minimum acceptable "real" voltage
       telemetry.batt1volt = 512 + telemetry.batt1volt
     end
-    telemetry.batt1current = bit32.extract(VALUE,10,7) * (10^bit32.extract(VALUE,9,1))
+    telemetry.batt1current = bit32.extract(VALUE,10,7) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
     telemetry.batt1mah = bit32.extract(VALUE,17,15)
   elseif DATA_ID == 0x5008 then -- BATT2
     telemetry.batt2volt = bit32.extract(VALUE,0,9)
@@ -965,7 +965,7 @@ local function processTelemetry(DATA_ID,VALUE,now)
       -- assume a 2Vx12 as minimum acceptable "real" voltage
       telemetry.batt2volt = 512 + telemetry.batt2volt
     end
-    telemetry.batt2current = bit32.extract(VALUE,10,7) * (10^bit32.extract(VALUE,9,1))
+    telemetry.batt2current = bit32.extract(VALUE,10,7) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
     telemetry.batt2mah = bit32.extract(VALUE,17,15)
   elseif DATA_ID == 0x5004 then -- HOME
     telemetry.homeDist = bit32.extract(VALUE,2,10) * (10^bit32.extract(VALUE,0,2))
@@ -1564,7 +1564,7 @@ local function reset()
       resetPhase = 7
     elseif resetPhase == 7 then
       utils.pushMessage(7,"Yaapu Telemetry Widget 1.9.5")
-      utils.playSound("yaapu")
+      utils.playSound("aeronavics")
       -- on model change reload config!
       if modelChangePending == true then
         -- force load model config
@@ -2221,7 +2221,7 @@ local function init()
   utils.loadBatteryConfigFile()
   -- ok done
   utils.pushMessage(7,"Yaapu Telemetry Widget 1.9.5".." ("..'c47a1df'..")")
-  utils.playSound("aeronavics")
+  utils.playSound("yaapu")
   -- fix for generalsettings lazy loading...
   unitScale = getGeneralSettings().imperial == 0 and 1 or 3.28084
   unitLabel = getGeneralSettings().imperial == 0 and "m" or "ft"

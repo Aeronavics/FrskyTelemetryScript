@@ -105,7 +105,7 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
     battLabel = (battId == 1 and "B1(Ah)" or "B2(Ah)")
   end
   lcd.drawText(x+95, 96, battLabel, SMLSIZE+RIGHT+CUSTOM_COLOR)
-  if battId < 2 then
+  if battId < 2 and x == 380 then
     -- labels
     lcd.drawText(x+15, 154, "Eff(mAh)", SMLSIZE+CUSTOM_COLOR+RIGHT)
     lcd.drawText(x+95, 154, "Power(W)", SMLSIZE+CUSTOM_COLOR+RIGHT)
@@ -115,6 +115,21 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
     -- efficiency for indipendent batteries makes sense only for battery 1
     local eff = speed > 2 and (conf.battConf == 3 and battery[7+1] or battery[7])*1000/(speed*conf.horSpeedMultiplier) or 0
     eff = ( conf.battConf == 3 and battId == 2) and 0 or eff
+    lcd.drawNumber(x+15,165,eff,(eff > 99999 and 0 or MIDSIZE)+RIGHT+CUSTOM_COLOR)
+    -- power
+    local power = battery[4+battId]*battery[7+battId]*0.01
+    lcd.drawNumber(x+95,165,power,MIDSIZE+RIGHT+CUSTOM_COLOR)
+    --lcd.drawText(x+95,165,string.format("%dW",power),MIDSIZE+CUSTOM_COLOR)
+  elseif battId == 2 then
+    -- labels
+    lcd.drawText(x+15, 154, "Eff(mAh)", SMLSIZE+CUSTOM_COLOR+RIGHT)
+    lcd.drawText(x+95, 154, "Power(W)", SMLSIZE+CUSTOM_COLOR+RIGHT)
+    -- data
+    lcd.setColor(CUSTOM_COLOR,0xFFFF)
+    local speed = utils.getMaxValue(telemetry.hSpeed,14)
+    -- efficiency for indipendent batteries makes sense only for battery 1
+    local eff = speed > 2 and (conf.battConf == 3 and battery[7+1] or battery[7])*1000/(speed*conf.horSpeedMultiplier) or 0
+    eff = ( conf.battConf == 3 and battId == 1) and 0 or eff
     lcd.drawNumber(x+15,165,eff,(eff > 99999 and 0 or MIDSIZE)+RIGHT+CUSTOM_COLOR)
     -- power
     local power = battery[4+battId]*battery[7+battId]*0.01

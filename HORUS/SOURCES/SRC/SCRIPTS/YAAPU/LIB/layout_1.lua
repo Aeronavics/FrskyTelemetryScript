@@ -45,10 +45,10 @@ local function draw(myWidget,drawLib,conf,telemetry,status,battery,alarms,frame,
       -- left pane info
       leftPanel.drawPane(0,drawLib,conf,telemetry,status,alarms,battery,0,utils)
     else
-      -- dual battery:battery 1 right pane
-      rightPanel.drawPane(380,drawLib,conf,telemetry,status,alarms,battery,1,utils)
-      -- dual battery:battery 2 left pane
-      rightPanel.drawPane(0,drawLib,conf,telemetry,status,alarms,battery,2,utils)
+      -- dual battery:battery 2 right pane
+      rightPanel.drawPane(380,drawLib,conf,telemetry,status,alarms,battery,2,utils)
+      -- dual battery:battery 1 left pane
+      rightPanel.drawPane(0,drawLib,conf,telemetry,status,alarms,battery,1,utils)
     end
   else
     -- battery 1 right pane in single battery mode
