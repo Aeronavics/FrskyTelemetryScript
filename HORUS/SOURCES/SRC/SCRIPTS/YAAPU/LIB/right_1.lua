@@ -121,6 +121,54 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
     local power = battery[4+battId]*battery[7+battId]*0.01
     lcd.drawNumber(x+95,165,power,MIDSIZE+RIGHT+CUSTOM_COLOR)
     --lcd.drawText(x+95,165,string.format("%dW",power),MIDSIZE+CUSTOM_COLOR)
+  elseif battId < 2 then
+    lcd.setColor(CUSTOM_COLOR,0xFFFF)
+    if conf.rangeFinderMax > 0 then
+      flags = 0
+      local rng = telemetry.range
+      rng = utils.getMaxValue(rng,16)
+      lcd.setColor(CUSTOM_COLOR,0x0000)
+      lcd.drawText(x+75, 154, "Range("..unitLabel..")", SMLSIZE+CUSTOM_COLOR+RIGHT)
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)
+      lcd.drawText(x+75, 165, string.format("%.1f",rng*0.01*unitScale), MIDSIZE+RIGHT+CUSTOM_COLOR)
+    else
+      flags = BLINK
+      -- always display gps altitude even without 3d lock
+      local alt = telemetry.gpsAlt/10
+      if telemetry.gpsStatus  > 2 then
+        flags = 0
+        -- update max only with 3d or better lock
+        alt = utils.getMaxValue(alt,12)
+      end
+      lcd.setColor(CUSTOM_COLOR,0x0000)
+      lcd.drawText(x+75, 154, "GPSAlt("..unitLabel..")", SMLSIZE+CUSTOM_COLOR+RIGHT)
+      local stralt = string.format("%d",alt*unitScale)
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)
+      lcd.drawText(x+75, 165, stralt, MIDSIZE+flags+RIGHT+CUSTOM_COLOR)
+    end
+    -- LABELS
+    lcd.setColor(CUSTOM_COLOR,0x0000)
+    drawLib.drawHomeIcon(90 - 70, 68,utils)
+    lcd.drawText(x+135, 154, "Dist("..unitLabel..")", SMLSIZE+RIGHT+CUSTOM_COLOR)
+    lcd.drawText(x+215, 154, "Travel("..unitLongLabel..")", SMLSIZE+RIGHT+CUSTOM_COLOR)
+    -- VALUES
+    lcd.setColor(CUSTOM_COLOR,0xFFFF)
+    -- home distance
+    flags = 0
+    if telemetry.homeAngle == -1 then
+      flags = BLINK
+    end
+    local dist = utils.getMaxValue(telemetry.homeDist,15)
+    if status.showMinMaxValues == true then
+      flags = 0
+    end
+    local strdist = string.format("%d",dist*unitScale)
+    lcd.setColor(CUSTOM_COLOR,0xFFFF)
+    lcd.drawText(x+135, 165, strdist, MIDSIZE+flags+RIGHT+CUSTOM_COLOR)
+    -- total distance
+    lcd.setColor(CUSTOM_COLOR,0xFFFF)
+    lcd.drawNumber(x+215, 165, telemetry.totalDist*unitLongScale*100, PREC2+MIDSIZE+RIGHT+CUSTOM_COLOR)
+
   elseif battId == 2 then
     -- labels
     lcd.drawText(x+15, 154, "Eff(mAh)", SMLSIZE+CUSTOM_COLOR+RIGHT)
