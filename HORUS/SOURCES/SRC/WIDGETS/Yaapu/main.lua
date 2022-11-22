@@ -160,7 +160,7 @@ telemetry.statusArmed = 0
 telemetry.battFailsafe = 0
 telemetry.ekfFailsafe = 0
 telemetry.failsafe = 0
-telemetry.imuTemp = 0
+telemetry.sid = 0
 telemetry.fencePresent = 0
 telemetry.fenceBreached = 0
 -- GPS
@@ -937,9 +937,8 @@ local function processTelemetry(DATA_ID,VALUE,now)
     telemetry.failsafe = bit32.extract(VALUE,12,1)
     telemetry.fencePresent = bit32.extract(VALUE,13,1)
     telemetry.fenceBreached = telemetry.fencePresent == 1 and bit32.extract(VALUE,14,1) or 0 -- ignore if fence is disabled
-    telemetry.throttle = math.floor(0.5 + (bit32.extract(VALUE,19,6) * (bit32.extract(VALUE,25,1) == 1 and -1 or 1) * 1.58)) -- signed throttle [-63,63] -> [-100,100]
-    -- IMU temperature: 0 means temp =< 19°, 63 means temp => 82°
-    telemetry.imuTemp = bit32.extract(VALUE,26,6) + 19 -- C°
+    telemetry.throttle = math.floor(0.5 + (bit32.extract(VALUE,17,6) * (bit32.extract(VALUE,23,1) == 1 and -1 or 1) * 1.58)) -- signed throttle [-63,63] -> [-100,100]
+    telemetry.sid = bit32.extract(VALUE,24,8) -- C°
   elseif DATA_ID == 0x5002 then -- GPS STATUS
     telemetry.numSats = bit32.extract(VALUE,0,4)
     -- offset  4: NO_GPS = 0, NO_FIX = 1, GPS_OK_FIX_2D = 2, GPS_OK_FIX_3D or GPS_OK_FIX_3D_DGPS or GPS_OK_FIX_3D_RTK_FLOAT or GPS_OK_FIX_3D_RTK_FIXED = 3
@@ -1368,7 +1367,7 @@ local function resetTelemetry()
   telemetry.statusArmed = 0
   telemetry.battFailsafe = 0
   telemetry.ekfFailsafe = 0
-  telemetry.imuTemp = 0
+  telemetry.sid = 0
   -- GPS
   telemetry.numSats = 0
   telemetry.gpsStatus = 0
@@ -1618,7 +1617,6 @@ local function setSensorValues()
   setTelemetryValue(0x021F, 0, 0, getNonZeroMin(telemetry.batt1volt,telemetry.batt2volt)*10, 1 , 2 , "VFAS")
   setTelemetryValue(0x011F, 0, 0, telemetry.vSpeed, 5 , 1 , "VSpd")
   setTelemetryValue(0x082F, 0, 0, math.floor(telemetry.gpsAlt*0.1), 9 , 0 , "GAlt")
-  setTelemetryValue(0x041F, 0, 0, telemetry.imuTemp, 11 , 0 , "IMUt")
   setTelemetryValue(0x060F, 0, 1, telemetry.statusArmed*100, 0 , 0 , "ARM")
   setTelemetryValue(0x050D, 0, 0, telemetry.throttle, 13 , 0 , "Thr")
 

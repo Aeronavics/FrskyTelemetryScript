@@ -91,10 +91,6 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
   lcd.drawText(x+90,54,battId == 0 and "B1+B2" or (battId == 1 and "B1" or "B2"),SMLSIZE+RIGHT+CUSTOM_COLOR)
   lcd.drawText(x+90, 108, "IMUt", SMLSIZE+RIGHT+CUSTOM_COLOR)
 
-  -- IMU Temperature
-  lcd.setColor(CUSTOM_COLOR,0xFFFF)
-  lcd.drawText(x+90, 120, string.format("%d@",telemetry.imuTemp), DBLSIZE+RIGHT+CUSTOM_COLOR)
-
   if status.showMinMaxValues == true then
     drawLib.drawVArrow(x+75+11, 70 + 8,false,true,utils)
   end

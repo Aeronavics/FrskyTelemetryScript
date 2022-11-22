@@ -107,6 +107,13 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
   lcd.drawText(x+95, 75, battLabel, SMLSIZE+RIGHT+CUSTOM_COLOR)
   -- lcd.drawText(x+95, 96, battLabel, SMLSIZE+RIGHT+CUSTOM_COLOR)
   if battId < 2 and x == 380 then
+    -- Active AC SID
+    lcd.setColor(CUSTOM_COLOR,0xFFFF) -- white
+    -- battery voltage
+    lcd.drawNumber(x+95, 95, telemetry.sid , DBLSIZE+RIGHT)
+    lcd.setColor(CUSTOM_COLOR,0x0000)
+    lcd.drawText(x+95, 125, "AC SID", SMLSIZE+RIGHT+CUSTOM_COLOR)
+
     -- labels
     lcd.drawText(x+15, 154, "Eff(mAh)", SMLSIZE+CUSTOM_COLOR+RIGHT)
     lcd.drawText(x+95, 154, "Power(W)", SMLSIZE+CUSTOM_COLOR+RIGHT)
@@ -170,6 +177,13 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
     lcd.drawNumber(x+215, 165, telemetry.totalDist*unitLongScale*100, PREC2+MIDSIZE+RIGHT+CUSTOM_COLOR)
 
   elseif battId == 2 then
+    -- Active AC SID
+    lcd.setColor(CUSTOM_COLOR,0xFFFF) -- white
+    -- battery voltage
+    lcd.drawNumber(x+95, 95, telemetry.sid , DBLSIZE+RIGHT)
+    lcd.setColor(CUSTOM_COLOR,0x0000)
+    lcd.drawText(x+95, 125, "AC SID", SMLSIZE+RIGHT+CUSTOM_COLOR)
+
     -- labels
     lcd.drawText(x+15, 154, "Eff(mAh)", SMLSIZE+CUSTOM_COLOR+RIGHT)
     lcd.drawText(x+95, 154, "Power(W)", SMLSIZE+CUSTOM_COLOR+RIGHT)
