@@ -957,7 +957,7 @@ local function processTelemetry(DATA_ID,VALUE,now)
       telemetry.batt1volt = 512 + telemetry.batt1volt
     end
     telemetry.batt1current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    battery[19] = bit32.extract(VALUE,10,1)
+    battery[19] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
     telemetry.batt1mah = bit32.extract(VALUE,20,12)
   elseif DATA_ID == 0x5008 then -- BATT2
     telemetry.batt2volt = bit32.extract(VALUE,0,9)
@@ -968,7 +968,7 @@ local function processTelemetry(DATA_ID,VALUE,now)
       telemetry.batt2volt = 512 + telemetry.batt2volt
     end
     telemetry.batt2current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    battery[20] = bit32.extract(VALUE,10,1)
+    battery[20] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
     telemetry.batt2mah = bit32.extract(VALUE,20,12)
   elseif DATA_ID == 0x5004 then -- HOME
     telemetry.homeDist = bit32.extract(VALUE,2,10) * (10^bit32.extract(VALUE,0,2))
