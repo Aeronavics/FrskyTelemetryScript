@@ -171,10 +171,12 @@ telemetry.gpsAlt = 0
 -- BATT 1
 telemetry.batt1volt = 0
 telemetry.batt1current = 0
+telemetry.batt1currentscale = 0
 telemetry.batt1mah = 0
 -- BATT 2
 telemetry.batt2volt = 0
 telemetry.batt2current = 0
+telemetry.batt2currentscale = 0
 telemetry.batt2mah = 0
 -- HOME
 telemetry.homeDist = 0
@@ -311,7 +313,7 @@ status.unitConversion = {}
 ---------------------------
 -- BATTERY TABLE
 ---------------------------
-local battery = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+local battery = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 ---------------------------
 -- LIBRARY LOADING
 ---------------------------
@@ -954,8 +956,9 @@ local function processTelemetry(DATA_ID,VALUE,now)
       -- assume a 2Vx12 as minimum acceptable "real" voltage
       telemetry.batt1volt = 512 + telemetry.batt1volt
     end
-    telemetry.batt1current = bit32.extract(VALUE,10,7) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    telemetry.batt1mah = bit32.extract(VALUE,17,15)
+    telemetry.batt1current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
+    battery[19] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
+    telemetry.batt1mah = bit32.extract(VALUE,20,12)
   elseif DATA_ID == 0x5008 then -- BATT2
     telemetry.batt2volt = bit32.extract(VALUE,0,9)
     -- telemetry max is 51.1V, 51.2 is reported as 0.0, 52.3 is 0.1...60 is 88
@@ -964,8 +967,9 @@ local function processTelemetry(DATA_ID,VALUE,now)
       -- assume a 2Vx12 as minimum acceptable "real" voltage
       telemetry.batt2volt = 512 + telemetry.batt2volt
     end
-    telemetry.batt2current = bit32.extract(VALUE,10,7) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    telemetry.batt2mah = bit32.extract(VALUE,17,15)
+    telemetry.batt2current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
+    battery[20] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
+    telemetry.batt2mah = bit32.extract(VALUE,20,12)
   elseif DATA_ID == 0x5004 then -- HOME
     telemetry.homeDist = bit32.extract(VALUE,2,10) * (10^bit32.extract(VALUE,0,2))
     telemetry.homeAlt = bit32.extract(VALUE,14,10) * (10^bit32.extract(VALUE,12,2)) * 0.1 * (bit32.extract(VALUE,24,1) == 1 and -1 or 1)
@@ -1252,6 +1256,12 @@ local function calcBattery()
     -- independent batteries, voltage alerts on battery 2, capacity % on battery 1
     battery[1] = battery[3]
     battery[4] = battery[6]
+    battery[7] = utils.getMaxValue(telemetry.batt1current,7)
+    battery[10] = telemetry.batt1mah
+    battery[13] = getBatt1Capacity()
+  elseif (conf.battConf == 7) then
+    battery[1] = battery[2]
+    battery[4] = battery[5]
     battery[7] = utils.getMaxValue(telemetry.batt1current,7)
     battery[10] = telemetry.batt1mah
     battery[13] = getBatt1Capacity()
@@ -2120,7 +2130,7 @@ local function backgroundTasks(myWidget,telemetryLoops)
     local cellVoltage = 0
     local voltage = 0
 
-    if conf.battConf == 3 or conf.battConf == 5 then
+    if conf.battConf == 3 or conf.battConf == 5 or conf.battConf == 7 then
       -- voltage alarms are based on battery 1
       cellVoltage = 100*(status.battsource == "vs" and status.cell1min or status.cell1sumFC/count1)
       voltage = 100*(status.battsource == "vs" and status.cell1min*count1 or status.cell1sumFC)
@@ -2145,7 +2155,7 @@ local function backgroundTasks(myWidget,telemetryLoops)
 
     if conf.battConf == 1 then
       batcurrent = telemetry.batt1current + telemetry.batt2current
-    elseif conf.battConf == 2 or conf.battConf == 3 or conf.battConf == 5 then
+    elseif conf.battConf == 2 or conf.battConf == 3 or conf.battConf == 5 or conf.battConf == 7 then
       batcurrent = telemetry.batt1current
     elseif conf.battConf == 4 or conf.battConf == 6 then
       batcurrent = telemetry.batt2current

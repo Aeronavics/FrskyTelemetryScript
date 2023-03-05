@@ -63,8 +63,8 @@ local unitLongLabel = getGeneralSettings().imperial == 0 and "km" or "mi"
 --
 local menuItems = {
   {"voice language:", "L1", 1, { "english", "italian", "french", "german" } , {"en","it","fr","de"} },
-  {"batt alert level 1:", "V1", 375, 0,5000,"V",PREC2,5 },
-  {"batt alert level 2:", "V2", 350, 0,5000,"V",PREC2,5 },
+  {"batt alert level 1:", "V1", 3800, 0,5000,"V",PREC2,5 },
+  {"batt alert level 2:", "V2", 3600, 0,5000,"V",PREC2,5 },
   {"batt[1] capacity override:", "B1", 0, 0,5000,"Ah",PREC2,10 },
   {"batt[2] capacity override:", "B2", 0, 0,5000,"Ah",PREC2,10 },
   {"batt[1] cell count override:", "CC", 0, 0,12," cells",0,1 },
