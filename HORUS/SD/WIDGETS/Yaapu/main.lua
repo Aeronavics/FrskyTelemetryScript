@@ -949,27 +949,17 @@ local function processTelemetry(DATA_ID,VALUE,now)
     telemetry.gpsHdopC = bit32.extract(VALUE,7,7) * (10^bit32.extract(VALUE,6,1)) -- dm
     telemetry.gpsAlt = bit32.extract(VALUE,24,7) * (10^bit32.extract(VALUE,22,2)) * (bit32.extract(VALUE,31,1) == 1 and -1 or 1)-- dm
   elseif DATA_ID == 0x5003 then -- BATT
-    telemetry.batt1volt = bit32.extract(VALUE,0,9)
-    -- telemetry max is 51.1V, 51.2 is reported as 0.0, 52.3 is 0.1...60 is 88
-    -- if 12S and V > 51.1 ==> Vreal = 51.2 + telemetry.batt1volt
-    if conf.cell1Count == 12 and telemetry.batt1volt < 240 then
-      -- assume a 2Vx12 as minimum acceptable "real" voltage
-      telemetry.batt1volt = 512 + telemetry.batt1volt
-    end
-    telemetry.batt1current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    battery[19] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
-    telemetry.batt1mah = bit32.extract(VALUE,20,12)
+    telemetry.batt1volt = bit32.extract(VALUE,0,10)
+    -- telemetry max is 102.3V
+    telemetry.batt1current = bit32.extract(VALUE,12,9) * (bit32.extract(VALUE,10,1) == 1 and -1 or 1)
+    battery[19] = bit32.extract(VALUE,11,1) -- if 1 is amps, otherwise is deciamps
+    telemetry.batt1mah = bit32.extract(VALUE,21,11)
   elseif DATA_ID == 0x5008 then -- BATT2
-    telemetry.batt2volt = bit32.extract(VALUE,0,9)
-    -- telemetry max is 51.1V, 51.2 is reported as 0.0, 52.3 is 0.1...60 is 88
-    -- if 12S and V > 51.1 ==> Vreal = 51.2 + telemetry.batt1volt
-    if conf.cell2Count == 12 and telemetry.batt2volt < 240 then
-      -- assume a 2Vx12 as minimum acceptable "real" voltage
-      telemetry.batt2volt = 512 + telemetry.batt2volt
-    end
-    telemetry.batt2current = bit32.extract(VALUE,11,9) * (bit32.extract(VALUE,9,1) == 1 and -1 or 1)
-    battery[20] = bit32.extract(VALUE,10,1) -- if 1 is amps, otherwise is deciamps
-    telemetry.batt2mah = bit32.extract(VALUE,20,12)
+    telemetry.batt2volt = bit32.extract(VALUE,0,10)
+    -- telemetry max is 102.3V
+    telemetry.batt2current = bit32.extract(VALUE,12,9) * (bit32.extract(VALUE,10,1) == 1 and -1 or 1)
+    battery[20] = bit32.extract(VALUE,11,1) -- if 1 is amps, otherwise is deciamps
+    telemetry.batt2mah = bit32.extract(VALUE,21,11)
   elseif DATA_ID == 0x5004 then -- HOME
     telemetry.homeDist = bit32.extract(VALUE,2,10) * (10^bit32.extract(VALUE,0,2))
     telemetry.homeAlt = bit32.extract(VALUE,14,10) * (10^bit32.extract(VALUE,12,2)) * 0.1 * (bit32.extract(VALUE,24,1) == 1 and -1 or 1)
