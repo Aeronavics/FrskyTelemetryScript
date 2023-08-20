@@ -161,6 +161,7 @@ telemetry.battFailsafe = 0
 telemetry.ekfFailsafe = 0
 telemetry.failsafe = 0
 telemetry.sid = 0
+telemetry.lastStatusTime = 0
 telemetry.fencePresent = 0
 telemetry.fenceBreached = 0
 -- GPS
@@ -940,7 +941,7 @@ local function processTelemetry(DATA_ID,VALUE,now)
     telemetry.fencePresent = bit32.extract(VALUE,13,1)
     telemetry.fenceBreached = telemetry.fencePresent == 1 and bit32.extract(VALUE,14,1) or 0 -- ignore if fence is disabled
     telemetry.throttle = math.floor(0.5 + (bit32.extract(VALUE,17,6) * (bit32.extract(VALUE,23,1) == 1 and -1 or 1) * 1.58)) -- signed throttle [-63,63] -> [-100,100]
-    telemetry.sid = bit32.extract(VALUE,24,8) -- C°
+    telemetry.sid = bit32.extract(VALUE,24,8)
   elseif DATA_ID == 0x5002 then -- GPS STATUS
     telemetry.numSats = bit32.extract(VALUE,0,4)
     -- offset  4: NO_GPS = 0, NO_FIX = 1, GPS_OK_FIX_2D = 2, GPS_OK_FIX_3D or GPS_OK_FIX_3D_DGPS or GPS_OK_FIX_3D_RTK_FLOAT or GPS_OK_FIX_3D_RTK_FIXED = 3
@@ -1037,11 +1038,16 @@ local function processTelemetry(DATA_ID,VALUE,now)
     telemetry.baroAlt = bit32.extract(VALUE,17,10) * (10^bit32.extract(VALUE,15,2)) * 0.1 * (bit32.extract(VALUE,27,1) == 1 and -1 or 1)
     status.airspeedEnabled = 1
   end
+  telemetry.lastStatusTime = getTime()
 end
 
 local function telemetryEnabled()
-  if getRSSI() == 0 then
+  if telemetry.lastStatusTime == 0 or getTime() - telemetry.lastStatusTime > 200 or getRSSI() == 0 then
     status.noTelemetryData = 1
+    status.hideNoTelemetry = false
+  else
+    status.noTelemetryData = 0
+    status.hideNoTelemetry = true
   end
   return status.noTelemetryData == 0
 end
@@ -1368,6 +1374,7 @@ local function resetTelemetry()
   telemetry.battFailsafe = 0
   telemetry.ekfFailsafe = 0
   telemetry.sid = 0
+  telemetry.lastStatusTime = 0
   -- GPS
   telemetry.numSats = 0
   telemetry.gpsStatus = 0
@@ -1940,8 +1947,8 @@ local function checkCellVoltage(celm)
   utils.checkAlarm(conf.battAlertLevel1,celm,7,-1,"batalert1",conf.repeatAlertsPeriod)
   utils.checkAlarm(conf.battAlertLevel2,celm,8,-1,"batalert2",conf.repeatAlertsPeriod)
   -- cell bgcolor is sticky but gets triggered with alarms
-  if status.battLevel1 == false then status.battLevel1 = alarms[7][1] end
-  if status.battLevel2 == false then status.battLevel2 = alarms[8][1] end
+  status.battLevel1 = alarms[7][1]
+  status.battLevel2 = alarms[8][1]
 end
 --------------------------------------------------------------------------------
 -- MAIN LOOP
