@@ -75,8 +75,8 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
   -- battery voltage
   -- drawLib.drawNumberWithDim(x+77,47,x+77, 58, battery[4+battId],"V",RIGHT+MIDSIZE+PREC1+CUSTOM_COLOR,SMLSIZE+CUSTOM_COLOR)
   -- battery current
-  local lowAmp = battery[7+battId]*0.1 < 10
-  drawLib.drawNumberWithDim(x+77,47,x+77,58,battery[7+battId]*(lowAmp and 1 or 0.1),"A",MIDSIZE+RIGHT+CUSTOM_COLOR+(lowAmp and PREC1 or 0),SMLSIZE+CUSTOM_COLOR)
+  -- local lowAmp = battery[7+battId] < 10
+  drawLib.drawNumberWithDim(x+77,47,x+77,58,battery[7+battId],"A",MIDSIZE+RIGHT+CUSTOM_COLOR+(battery[19+battId] == 0 and PREC1 or 0),SMLSIZE+CUSTOM_COLOR)
   -- display capacity bar %
   -- local color = lcd.RGB(255,0, 0)
   -- if perc > 50 then
@@ -100,6 +100,8 @@ local function drawPane(x,drawLib,conf,telemetry,status,alarms,battery,battId,ut
     elseif conf.battConf ==  4 then
       -- alarms are based on battery 2
       battLabel = "B2(Ah)"
+    elseif conf.battConf == 7 then
+      battLabel = "B1(Ah)"
     end
   else
     battLabel = (battId == 1 and "B1(Ah)" or "B2(Ah)")
